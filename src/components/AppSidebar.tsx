@@ -1,6 +1,5 @@
-import { Database, Search, Plus, Wallet } from "lucide-react";
+import { Database, Search, Plus, Settings } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -24,22 +23,21 @@ const items = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-primary/20 text-primary font-medium border-primary/30" : "hover:bg-accent/50";
+    isActive ? "bg-primary/20 text-primary font-medium border-primary/30" : "hover:bg-muted/50";
 
   return (
     <Sidebar
-      className={isCollapsed ? "w-16" : "w-64"}
+      className={`${isCollapsed ? "w-16" : "w-64"} bg-card/80 backdrop-blur-sm border-r border-border/50 sticky top-0 h-screen`}
       collapsible="icon"
     >
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-4 border-b border-border/30">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-lg">
             <Database className="w-5 h-5 text-primary-foreground" />
           </div>
           {!isCollapsed && (
@@ -77,19 +75,14 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-auto p-4">
+        <div className="mt-auto p-4 border-t border-border/30">
           <Button
-            variant="wallet"
+            variant="ghost"
             size={isCollapsed ? "icon" : "lg"}
-            onClick={() => setIsWalletConnected(!isWalletConnected)}
-            className={`w-full ${isCollapsed ? "h-10" : "h-12"}`}
+            className={`w-full flex items-center gap-3 ${isCollapsed ? "h-10" : "h-12"} hover:bg-muted/50`}
           >
-            <Wallet className="w-4 h-4" />
-            {!isCollapsed && (
-              <span className="ml-2">
-                {isWalletConnected ? "0x1234...5678" : "Connect Wallet"}
-              </span>
-            )}
+            <Settings className="w-4 h-4" />
+            {!isCollapsed && <span className="ml-2">Settings</span>}
           </Button>
         </div>
       </SidebarContent>
