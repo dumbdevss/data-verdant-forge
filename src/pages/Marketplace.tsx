@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Search, Filter, Clock, Zap, Eye } from "lucide-react";
+import { Search, Filter, Clock, Zap, Eye, Grid3X3, List, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Dataset {
   id: string;
@@ -68,6 +69,7 @@ const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [priceRange, setPriceRange] = useState("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const filteredDatasets = mockDatasets.filter((dataset) => {
     const matchesSearch = dataset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -170,64 +172,145 @@ const Marketplace = () => {
           </Card>
         </div>
 
-        {/* Datasets Grid */}
-        <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Datasets Section */}
+        <div className="flex-1 space-y-6">
+          {/* View Toggle and Results Info */}
+          <div className="flex items-center justify-between">
+            <div className="text-muted-foreground">
+              {filteredDatasets.length} datasets found
+            </div>
+            <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "grid" | "list")}>
+              <TabsList className="glass-card">
+                <TabsTrigger value="grid" className="flex items-center space-x-2">
+                  <LayoutGrid className="w-4 h-4" />
+                  <span className="hidden sm:inline">Grid</span>
+                </TabsTrigger>
+                <TabsTrigger value="list" className="flex items-center space-x-2">
+                  <List className="w-4 h-4" />
+                  <span className="hidden sm:inline">List</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Datasets Display */}
+          <div className={viewMode === "grid" 
+            ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" 
+            : "space-y-4"
+          }>
             {filteredDatasets.map((dataset) => (
               <Link key={dataset.id} to={`/dataset/${dataset.id}`}>
-                <Card className="glass-card hover:border-primary/50 transition-smooth cursor-pointer group">
-                  <div className="relative overflow-hidden rounded-t-lg">
-                    <img
-                      src={dataset.thumbnail}
-                      alt={dataset.name}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-smooth"
-                    />
-                    <div className="absolute top-3 right-3">
-                      {dataset.isAuction ? (
-                        <Badge className="bg-orange-500/90 text-white">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Auction
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-primary/90 text-primary-foreground">
-                          <Zap className="w-3 h-3 mr-1" />
-                          Instant
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <CardContent className="p-4 space-y-3">
-                    <div>
-                      <h3 className="font-semibold text-lg group-hover:text-primary transition-smooth">
-                        {dataset.name}
-                      </h3>
-                      <p className="text-muted-foreground text-sm line-clamp-2">
-                        {dataset.description}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {dataset.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <div className="flex items-center space-x-1 text-muted-foreground text-sm">
-                        <Eye className="w-4 h-4" />
-                        <span>{dataset.downloadCount}</span>
+                {viewMode === "grid" ? (
+                  <Card className="glass-card hover:border-primary/50 transition-smooth cursor-pointer group">
+                    <div className="relative overflow-hidden rounded-t-lg">
+                      <img
+                        src={dataset.thumbnail}
+                        alt={dataset.name}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-smooth"
+                      />
+                      <div className="absolute top-3 right-3">
+                        {dataset.isAuction ? (
+                          <Badge className="bg-orange-500/90 text-white">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Auction
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-primary/90 text-primary-foreground">
+                            <Zap className="w-3 h-3 mr-1" />
+                            Instant
+                          </Badge>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-primary">
-                          {dataset.price}
+                    </div>
+                    
+                    <CardContent className="p-4 space-y-3">
+                      <div>
+                        <h3 className="font-semibold text-lg group-hover:text-primary transition-smooth">
+                          {dataset.name}
+                        </h3>
+                        <p className="text-muted-foreground text-sm line-clamp-2">
+                          {dataset.description}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1">
+                        {dataset.tags.slice(0, 3).map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                        <div className="flex items-center space-x-1 text-muted-foreground text-sm">
+                          <Eye className="w-4 h-4" />
+                          <span>{dataset.downloadCount}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-primary">
+                            {dataset.price}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="glass-card hover:border-primary/50 transition-smooth cursor-pointer group">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="relative overflow-hidden rounded-lg flex-shrink-0">
+                          <img
+                            src={dataset.thumbnail}
+                            alt={dataset.name}
+                            className="w-20 h-20 object-cover group-hover:scale-105 transition-smooth"
+                          />
+                          <div className="absolute top-1 right-1">
+                            {dataset.isAuction ? (
+                              <Badge className="bg-orange-500/90 text-white text-xs">
+                                <Clock className="w-2 h-2 mr-1" />
+                                Auction
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-primary/90 text-primary-foreground text-xs">
+                                <Zap className="w-2 h-2 mr-1" />
+                                Instant
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-lg group-hover:text-primary transition-smooth truncate">
+                                {dataset.name}
+                              </h3>
+                              <p className="text-muted-foreground text-sm line-clamp-2 mb-2">
+                                {dataset.description}
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {dataset.tags.slice(0, 4).map((tag) => (
+                                  <Badge key={tag} variant="secondary" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end space-y-2 ml-4">
+                              <div className="text-lg font-bold text-primary">
+                                {dataset.price}
+                              </div>
+                              <div className="flex items-center space-x-1 text-muted-foreground text-sm">
+                                <Eye className="w-4 h-4" />
+                                <span>{dataset.downloadCount}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </Link>
             ))}
           </div>
